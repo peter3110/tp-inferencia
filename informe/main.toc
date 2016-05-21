@@ -1,0 +1,6 @@
+\select@language {spanish}
+\contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}
+\contentsline {section}{\numberline {2}Modelos}{3}
+\contentsline {subsection}{\numberline {2.1}Modelo 1a}{3}
+\contentsline {subsection}{\numberline {2.2}Modelo 1b}{3}
+\contentsline {subsection}{\numberline {2.3}Modelo 2a}{3}

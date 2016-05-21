@@ -1,0 +1,124 @@
+
+\documentclass[a4paper]{article}
+
+\usepackage[paper=a4paper, left=1.5cm, right=1.5cm, bottom=1.5cm, top=1.5cm]{geometry}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage{ulem}
+\usepackage{amssymb, amsmath, amsbsy}
+\usepackage{caratula/caratula}
+\def\doubleunderline#1{\underline{\underline{#1}}}
+
+\usepackage{tikz}
+\usetikzlibrary{bayesnetWLee}
+
+\begin{document}
+
+\input{caratula.tex}
+%Carátula
+\maketitle
+\newpage
+
+%Indice
+\tableofcontents
+\newpage
+
+% Demás secciones
+%
+\section{Introducción}
+% \input{introduccion.tex}
+En el presente Trabajo Práctico ...
+
+
+\section{Modelos}
+La idea de los modelos es que ... \\
+Cada una de las variables representa .. \\
+Utilizamos cada una de las distribuciones porque ... \\
+
+
+\subsection{Modelo 1a}
+\tikz{ %
+		\node[obsDisc] (m) {$m_i$} ; %
+        \node[detCont, right=of m] (theta) {$\theta_i$} ; %
+        \node[detCont, right=of theta] (p) {$p_i$} ; %
+
+		\node[latentCont, above left=of theta] (C) {$C$} ;
+		\node[latentCont, above right=of theta] (NC) {$NC$} ;
+		\node[latentCont, right=of p] (alpha) {$\alpha$} ;
+
+     	\edge[] {theta} {m} ; 
+     	\edge[] {p} {theta} ;
+     	\edge[] {C} {theta} ;
+     	\edge[] {NC} {theta} ;
+     	\edge[] {alpha} {p} ;
+        \plate {} { (m) (theta) (p) } {$i=1 \dots cantMonedas$}; %
+}
+\newline
+Likelihood y priors: \\
+\begin{itemize}
+	\item $ m_i \sim Binomial(\theta_i, cantLanzamientos) $
+	\item $ C \sim Beta(k_1, k_1) $, con $k_1$ una constante grande ( $\geq 100 $ )
+	\item $ NC \sim Beta(k_2, k_2) $, con $k_2$ una con constante entre 0 y 1 
+	\item $ \alpha \sim Uniforme(0,cantMonedas) $
+	\item $ \theta_i = p_i * C + (1 - p_i) * NC $
+	\item $ p_i = (\alpha < i \leq \alpha + 1) $
+\end{itemize}
+
+
+
+\subsection{Modelo 1b}
+\tikz{ %
+		\node[obsDisc] (m) {$m_i$} ; %
+        \node[detCont, right=of m] (theta) {$\theta_i$} ; %
+
+		\node[latentCont, above left=of theta] (C) {$C$} ;
+		\node[latentCont, above right=of theta] (NC) {$NC$} ;
+		\node[latentCont, right=of theta] (alpha) {$\alpha_1$} ;
+
+     	\edge[] {theta} {m} ;
+     	\edge[] {C} {theta} ;
+     	\edge[] {NC} {theta} ;
+     	\edge[] {alpha} {theta} ;
+        \plate {} { (m) (theta) } {$i=1 \dots cantMonedas$}; %
+}
+\newline
+Likelihood y priors: \\
+\begin{itemize}
+	\item $ m_i \sim Binomial(\theta_i, cantLanzamientos) $
+	\item $ C \sim Beta(k_1, k_1) $, con $k_1$ una constante grande ( $\geq 100 $ )
+	\item $ NC \sim Beta(k_2, k_2) $, con $k_2$ una con constante entre $0$ y $1$
+	\item $ \alpha_1 \sim Categorica(\dfrac{1}{cantMonedas}, \dots , \dfrac{1}{cantMonedas}) $
+	\item $ \theta_i = (i = \alpha_1) $
+\end{itemize}
+
+\subsection{Modelo 2a}
+\tikz{ %
+		\node[obsDisc] (m) {$m_i$} ; %
+        \node[detCont, right=of m] (theta) {$\theta_i$} ; %
+
+		\node[latentCont, above left=of theta] (C) {$C$} ;
+		\node[latentCont, above right=of theta] (NC) {$NC$} ;
+		\node[latentCont, right=of theta] (alpha) {$\alpha_2$} ;
+
+     	\edge[] {theta} {m} ;
+     	\edge[] {C} {theta} ;
+     	\edge[] {NC} {theta} ;
+     	\edge[] {alpha} {theta} ;
+        \plate {} { (m) (theta) } {$i=1 \dots cantMonedas$}; %
+}
+\newline
+Likelihood y priors: en este caso, el likelihood y los priors son los mismos que en el modelo 1a,
+cambiando $\alpha_1$ 
+por $\alpha_2$:
+\begin{itemize}
+	\item $ \alpha_2 \sim Bernoulli(0.5) $
+\end{itemize}
+
+%
+%
+% \section{Conclusiones}
+% \input{conclusiones.tex}
+%
+
+\end{document}
+
