@@ -1,0 +1,13 @@
+
+model {
+   dMonedaCargada ~ dbeta(priorcargada,priorcargada) # ---> para extraer la distrib posterior de la moneda cargada
+   alpha ~ dcat(probs_cargada_categorica)   # ---> vector con (1/cantMonedas, 1/cantMonedas, ...) 
+   for (i in 1:cantMonedas) {
+     theta[i] = (alpha==i) * dMonedaCargada + (1 - (alpha==i)) * x[i] 
+     x[i] ~ dbeta(priornocargada,priornocargada) # variable auxiliar
+   }
+   # Likelihood
+   for(i in 1:cantMonedas) {
+    m[i] ~ dbinom(theta[i], cantLanzamientos)
+   }
+}       

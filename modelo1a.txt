@@ -1,0 +1,16 @@
+ 
+model {
+    # Priors
+    A ~ dbeta(priornocargada,priornocargada)  # no cargada
+    B ~ dbeta(priorcargada,priorcargada)  # cargada
+    alpha ~ dunif(0,cantMonedas)
+    for(i in 1:cantMonedas) {
+      p[i] = (alpha < i && i <= alpha + 1)
+      theta[i] = p[i] * B + (1 - p[i]) * A
+    }
+
+    # Likelihood
+    for(i in 1:cantMonedas) {
+      m[i] ~ dbinom(theta[i],cantLanzamientos)
+    }
+}                  

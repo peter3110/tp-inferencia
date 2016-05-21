@@ -1,0 +1,14 @@
+
+model {
+  # Priors
+  alpha ~ dbern(1./2.) # 1 sii cada moneda esta cargada
+  for (i in 1:cantMonedas) {
+    x[i] ~ dbeta(priorcargada,priorcargada)     # var auxiliar
+    y[i] ~ dbeta(priornocargada,priornocargada) # var auxiliar
+    theta[i] = (alpha==1) * x[i] + (alpha!=1) * y[i]
+  }
+  # Likelihood
+  for(i in 1:cantMonedas) {
+    m[i] ~ dbinom(theta[i], cantLanzamientos)
+  }
+}
