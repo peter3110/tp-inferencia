@@ -1,6 +1,11 @@
 \select@language {spanish}
 \contentsline {section}{\numberline {1}Introducci\IeC {\'o}n}{3}
-\contentsline {section}{\numberline {2}Modelos}{3}
+\contentsline {section}{\numberline {2}Problema 1 y 3}{3}
 \contentsline {subsection}{\numberline {2.1}Modelo 1a}{3}
 \contentsline {subsection}{\numberline {2.2}Modelo 1b}{3}
-\contentsline {subsection}{\numberline {2.3}Modelo 2a}{3}
+\contentsline {subsection}{\numberline {2.3}Modelo 2a}{4}
+\contentsline {section}{\numberline {3}Problema 2}{4}
+\contentsline {subsection}{\numberline {3.1} }{4}
+\contentsline {subsection}{\numberline {3.2} }{6}
+\contentsline {subsection}{\numberline {3.3} }{7}
+\contentsline {section}{\numberline {4}Problema 4}{7}

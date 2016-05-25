@@ -42,11 +42,11 @@ model {
 jagsscript = cat("
 model {
   # Priors
-  alpha ~ dbern(1./2.) # 1 sii cada moneda esta cargada
   for (i in 1:cantMonedas) {
+    alpha[i] ~ dbern(1./2.) # 1 sii cada moneda esta cargada
     x[i] ~ dbeta(priorcargada,priorcargada)     # var auxiliar
     y[i] ~ dbeta(priornocargada,priornocargada) # var auxiliar
-    theta[i] = (alpha==1) * x[i] + (alpha!=1) * y[i]
+    theta[i] = (alpha[i]==1) * x[i] + (alpha[i]!=1) * y[i]
   }
   # Likelihood
   for(i in 1:cantMonedas) {
@@ -60,16 +60,24 @@ model {
 # { resultados = c(5,3,0), priorcargada=.5, priornocargada=100}
 # { resultados = c(4,6,3), priorcargada=.5, priornocargada=100}
 # { resultados = c(4,6,3), priorcargada=.5, priornocargada=10}
+# { resultados = c(10,8,2),priorcargada=.5, priornocargada=100}
 # { resultados = c(4,6,3), priorcargada=.001, priornocargada=10}
 # { resultados = c(4,6,1), priorcargada=.001, priornocargada=10}
+
+# Para ver la diferencia de modelo entre el ejercicio 1 y el 2
+# { resultados = c(4,9,10), priorcargada=.001, priornocargada=10}
+
+# { resultados = c(4,9,10), priorcargada=.4, priornocargada=100 } 
+
 # Experimentacion
-niter <- 5000
-nchains <- 3
+niter <-5000
+nchains <- 10
+priorcargada <- .4
+priornocargada <- 100
 cantMonedas <- 3
 cantLanzamientos <- 10
-resultados <- c(4,6,1)
-priorcargada <- .01
-priornocargada <- 10
+resultados <- c(3,4,10)
+#resultados <- c(95, rep(50, cantMonedas-1))
 
 # Modelos
 mod_1a = jags.model('modelo1a.txt', data = list('m' = resultados, 'cantMonedas' = cantMonedas,
@@ -77,7 +85,9 @@ mod_1a = jags.model('modelo1a.txt', data = list('m' = resultados, 'cantMonedas' 
                     'priornocargada' = priornocargada), 
                     n.chains = nchains)
 samples.1a <- coda.samples(mod_1a, c('theta'), n.iter = niter)
-plot(samples.1a)
+samples.1a <- jags.samples(mod_1a, c('theta'), n.iter = niter)
+
+plot(density(samples.1a$theta[3,1:niter,1:nchains]))
 
 ####################
 
@@ -86,7 +96,7 @@ mod_1b = jags.model('modelo1b.txt', data = list('m' = resultados, 'cantMonedas' 
                     'priornocargada' = priornocargada,
                     'probs_cargada_categorica' = rep(1./cantMonedas, cantMonedas) ),
                     n.chains = nchains)
-samples.1b <- coda.samples(mod_1b, c('theta'), n.iter = niter)
+samples.1b <- coda.samples(mod_1b, c('alpha'), n.iter = niter)
 plot(samples.1b)
 
 ####################
@@ -96,4 +106,5 @@ mod_2a = jags.model('modelo2a.txt', data=list('m' = resultados, 'cantMonedas' = 
                     'priornocargada' = priornocargada),
                     n.chains = nchains)
 samples.2a <- coda.samples(mod_2a, c('theta'), n.iter = niter)
+samples.2a <- jags.samples(mod_2a, c('theta'), n.iter = niter)
 plot(samples.2a)
