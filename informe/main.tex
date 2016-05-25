@@ -251,6 +251,70 @@ p(y_{n+1} | y) =  \int p(y_{n+1}, \theta | y) d\theta
 			   =  \int \theta^{y_{n+1}} (1 - \theta)^{1 - y_{n+1}} p(\theta | y) d \theta
 $
 
+
+$ p(\theta | D) \propto P(D | \theta) * P(\theta) $ donde \\
+
+Likelihood = $\theta^{k}(1-\theta)^{n - k}$
+Prior = $\theta^{\alpha - 1}(1-\theta)^{\beta - 1}$ que en nuestro caso para la moneda cargada es $ \theta^{k_1 - 1}(1-\theta)^{k_1 - 1} $ \\
+Sabemos que $p(\theta | D) \sim Beta(k + k_1, n - k + k_1)$ por ser la distribucion Beta la conjugada de la Binomial. \\
+Queremos calcular: \\
+$p(Cara | n, k) 	= \int p(Cara | \theta) * p(\theta | n, k) d \theta$. Notar que $p(Cara | \theta)$ es una $Binomial(1, \theta)$ por lo que es igual a $\theta$ (ya que la probabilidad de salir cara en una tirada es $\theta$)
+				= $\int \theta p(\theta | n, k) d \theta$ que es la esperanza!
+				= $\frac {k + k_1}{n + k_1 + k_1}$
+				= $\frac {k + k_1}{n + 2k_1}$
+\newpage
+\section {Código de los modelos provistos}
+
+\subsection{Modelo 1a}
+ 
+model { \\
+    # Priors \\
+    A ~ dbeta(priornocargada,priornocargada)  # no cargada \\
+    B ~ dbeta(priorcargada,priorcargada)  # cargada \\
+    alpha ~ dunif(0,cantMonedas) \\
+    for(i in 1:cantMonedas) { \\
+      p[i] = (alpha < i && i <= alpha + 1) \\
+      theta[i] = p[i] * B + (1 - p[i]) * A \\
+    } \\
+
+    # Likelihood \\
+    for(i in 1:cantMonedas) { \\
+      m[i] ~ dbinom(theta[i],cantLanzamientos) \\
+    } \\
+} \\           
+
+\subsection{Modelo 1b}
+
+model { \\
+   dMonedaCargada ~ dbeta(priorcargada,priorcargada) # ---> para extraer la distrib posterior de la moneda cargada \\
+   alpha ~ dcat(probs_cargada_categorica)   # ---> vector con (1/cantMonedas, 1/cantMonedas, ...) \\
+   for (i in 1:cantMonedas) { \\
+     theta[i] = (alpha==i) * dMonedaCargada + (1 - (alpha==i)) * x[i] \\
+     x[i] ~ dbeta(priornocargada,priornocargada) # variable auxiliar \\
+   } \\
+   # Likelihood \\
+   for(i in 1:cantMonedas) { \\
+    m[i] ~ dbinom(theta[i], cantLanzamientos) \\
+   } \\
+} \\
+
+\subsection{Modelo 2a}
+
+model { \\
+  # Priors \\
+  alpha ~ dbern(1./2.) # 1 sii cada moneda esta cargada \\
+  for (i in 1:cantMonedas) { \\
+    x[i] ~ dbeta(priorcargada,priorcargada)     # var auxiliar \\
+    y[i] ~ dbeta(priornocargada,priornocargada) # var auxiliar \\
+    theta[i] = (alpha==1) * x[i] + (alpha!=1) * y[i] \\
+  } \\
+  # Likelihood \\
+  for(i in 1:cantMonedas) { \\
+    m[i] ~ dbinom(theta[i], cantLanzamientos) \\
+  } \\
+} \\
+
+
 %
 %
 % \section{Conclusiones}
