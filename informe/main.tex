@@ -7,6 +7,7 @@
 \usepackage{ulem}
 \usepackage{amssymb, amsmath, amsbsy}
 \usepackage{caratula/caratula}
+\usepackage{listings}
 \def\doubleunderline#1{\underline{\underline{#1}}}
 
 \usepackage{tikz}
@@ -104,7 +105,8 @@ Likelihood y priors: \\
 	\item $ C \sim Beta(k_1, k_1) $, con $k_1$ una constante grande ( $\geq 100 $ )
 	\item $ NC \sim Beta(k_2, k_2) $, con $k_2$ una con constante entre $0$ y $1$
 	\item $ \alpha_1 \sim Categorica(\dfrac{1}{cantMonedas}, \dots , \dfrac{1}{cantMonedas}) $
-	\item $ \theta_i = (i = \alpha_1) $
+	\item $ \theta_i = ((\alpha_1==i) * C + (1 - (\alpha_1==i)) * NC) $
+
 \end{itemize}
 
 \subsection{Modelo 2a}
@@ -251,6 +253,7 @@ p(y_{n+1} | y) =  \int p(y_{n+1}, \theta | y) d\theta
 			   =  \int \theta^{y_{n+1}} (1 - \theta)^{1 - y_{n+1}} p(\theta | y) d \theta
 $
 \\
+\\
 Otra manera de calcular la posterior es la siguiente:
 \\
 
@@ -268,54 +271,57 @@ $p(Cara | n, k) 	= \int_{0}^{1} p(Cara | \theta) * p(\theta | n, k) d \theta$. N
 \section {Código de los modelos provistos}
 
 \subsection{Modelo 1a}
- 
-model { \\
-    \# Priors \\
-    A ~ dbeta(priornocargada,priornocargada)  \# no cargada \\
-    B ~ dbeta(priorcargada,priorcargada)  \# cargada \\
-    alpha ~ dunif(0,cantMonedas) \\
-    for(i in 1:cantMonedas) { \\
-      p[i] = (alpha < i && i <= alpha + 1) \\
-      theta[i] = p[i] * B + (1 - p[i]) * A \\
-    } \\
-
-    \# Likelihood \\
-    for(i in 1:cantMonedas) { \\
-      m[i] ~ dbinom(theta[i],cantLanzamientos) \\
-    } \\
-} \\           
+\begin{lstlisting} 
+model { 
+    # Priors 
+    A ~ dbeta(priornocargada,priornocargada)  # no cargada 
+    B ~ dbeta(priorcargada,priorcargada)  # cargada 
+    alpha ~ dunif(0,cantMonedas) 
+    for(i in 1:cantMonedas) { 
+      p[i] = (alpha < i && i <= alpha + 1) 
+      theta[i] = p[i] * B + (1 - p[i]) * A 
+    } 
+    # Likelihood 
+    for(i in 1:cantMonedas) { 
+      m[i] ~ dbinom(theta[i],cantLanzamientos) 
+    } 
+}       
+\end{lstlisting}
 
 \subsection{Modelo 1b}
 
-model { \\
-   dMonedaCargada ~ dbeta(priorcargada,priorcargada) \# ---> para extraer la distrib posterior de la moneda cargada \\
-   alpha ~ dcat(probs_cargada_categorica)   \# ---> vector con (1/cantMonedas, 1/cantMonedas, ...) \\
-   for (i in 1:cantMonedas) { \\
-     theta[i] = (alpha==i) * dMonedaCargada + (1 - (alpha==i)) * x[i] \\
-     x[i] ~ dbeta(priornocargada,priornocargada) \# variable auxiliar \\
-   } \\
-   \# Likelihood \\
-   for(i in 1:cantMonedas) { \\
-    m[i] ~ dbinom(theta[i], cantLanzamientos) \\
-   } \\
-} \\
+\begin{lstlisting} 
+model { 
+   dMonedaCargada ~ dbeta(priorcargada,priorcargada)
+   alpha ~ dcat(probs_cargada_categorica)
+   for (i in 1:cantMonedas) { 
+     theta[i] = (alpha==i) * dMonedaCargada + (1 - (alpha==i)) * x[i] 
+     x[i] ~ dbeta(priornocargada,priornocargada) # variable auxiliar 
+   } 
+   # Likelihood 
+   for(i in 1:cantMonedas) { 
+    m[i] ~ dbinom(theta[i], cantLanzamientos) 
+   } 
+} 
+\end{lstlisting} 
 
 \subsection{Modelo 2a}
 
-model { \\
-  \# Priors \\
-  alpha ~ dbern(1./2.) \# 1 sii cada moneda esta cargada \\
-  for (i in 1:cantMonedas) { \\
-    x[i] ~ dbeta(priorcargada,priorcargada)     \# var auxiliar \\
-    y[i] ~ dbeta(priornocargada,priornocargada) \# var auxiliar \\
-    theta[i] = (alpha==1) * x[i] + (alpha!=1) * y[i] \\
-  } \\
-  \# Likelihood \\
-  for(i in 1:cantMonedas) { \\
-    m[i] ~ dbinom(theta[i], cantLanzamientos) \\
-  } \\
-} \\
-
+\begin{lstlisting} 
+model { 
+  # Priors 
+  for (i in 1:cantMonedas) { 
+    alpha[i] ~ dbern(1./2.) # 1 sii cada moneda esta cargada 
+    x[i] ~ dbeta(priorcargada,priorcargada)     # var auxiliar 
+    y[i] ~ dbeta(priornocargada,priornocargada) # var auxiliar 
+    theta[i] = (alpha[i]==1) * x[i] + (alpha[i]!=1) * y[i] 
+  } 
+  # Likelihood 
+  for(i in 1:cantMonedas) {
+    m[i] ~ dbinom(theta[i], cantLanzamientos)
+  } 
+} 
+\end{lstlisting} 
 
 %
 %
